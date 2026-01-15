@@ -35,9 +35,24 @@ if [ -z "$last_message" ]; then
     exit 0
 fi
 
-# Speak the full message (fully detached so it doesn't block the hook)
-# Strip any leading dashes to prevent option injection
-clean_message="${last_message#-}"
+# Clean the message for speech
+clean_message="$last_message"
+
+# Strip leading dashes to prevent option injection
+clean_message="${clean_message#-}"
+
+# Remove markdown links [text](url) -> text
+clean_message=$(echo "$clean_message" | sed -E 's/\[([^]]+)\]\([^)]+\)/\1/g')
+
+# Remove bare URLs (http, https, ftp)
+clean_message=$(echo "$clean_message" | sed -E 's|https?://[^ ]+||g; s|ftp://[^ ]+||g')
+
+# Remove file paths that look like URLs
+clean_message=$(echo "$clean_message" | sed -E 's|[~/][a-zA-Z0-9_./-]+\.[a-z]{2,4}||g')
+
+# Clean up multiple spaces
+clean_message=$(echo "$clean_message" | tr -s ' ')
+
 nohup say "$clean_message" >/dev/null 2>&1 &
 disown
 
