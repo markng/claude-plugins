@@ -53,6 +53,9 @@ clean_message=$(echo "$clean_message" | sed -E 's|[~/][a-zA-Z0-9_./-]{10,}|file 
 # Clean up multiple spaces
 clean_message=$(echo "$clean_message" | tr -s ' ')
 
+# Kill any existing say process to prevent overlap
+pkill -x say 2>/dev/null
+
 nohup say "$clean_message" >/dev/null 2>&1 &
 disown
 
