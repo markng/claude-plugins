@@ -1,0 +1,22 @@
+{
+  "name": "profit-first-coach",
+  "description": "Profit First CFO advisor using Mike Michalowicz's methodology for behavioral cash management. Helps businesses achieve permanent profitability through disciplined allocation and expense discipline.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Mark Ng",
+    "url": "https://markng.co.uk"
+  },
+  "keywords": [
+    "profit-first",
+    "cfo",
+    "finance",
+    "accounting",
+    "cash-management",
+    "small-business"
+  ],
+  "license": "MIT",
+  "repository": "https://github.com/markng/claude-plugins",
+  "agents": "./agents",
+  "skills": "./skills",
+  "docs": "./docs"
+}
