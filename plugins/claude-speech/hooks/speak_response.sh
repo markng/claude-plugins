@@ -53,8 +53,14 @@ clean_message=$(echo "$clean_message" | sed -E 's|[~/][a-zA-Z0-9_./-]{10,}|file 
 # Clean up multiple spaces
 clean_message=$(echo "$clean_message" | tr -s ' ')
 
-# Kill any existing say process to prevent overlap
-pkill -x say 2>/dev/null
+# Wait for any existing say process to avoid overlap
+if pgrep -x say >/dev/null 2>&1; then
+    sleep 1
+    # If still speaking (or another started), wait longer
+    if pgrep -x say >/dev/null 2>&1; then
+        sleep 2
+    fi
+fi
 
 nohup say "$clean_message" >/dev/null 2>&1 &
 disown
