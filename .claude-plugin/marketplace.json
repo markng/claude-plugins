@@ -13,6 +13,15 @@
       "author": {
         "name": "Mark Sherwin Gonzales"
       }
+    },
+    {
+      "name": "profit-first-coach",
+      "source": "./plugins/profit-first-coach",
+      "description": "Profit First CFO advisor using Mike Michalowicz's methodology for behavioral cash management",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mark Ng"
+      }
     }
   ]
 }
