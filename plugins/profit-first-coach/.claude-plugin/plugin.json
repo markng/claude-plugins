@@ -16,7 +16,5 @@
   ],
   "license": "MIT",
   "repository": "https://github.com/markng/claude-plugins",
-  "agents": "./agents",
-  "skills": "./skills",
-  "docs": "./docs"
+  "skills": ["./skills/"]
 }
