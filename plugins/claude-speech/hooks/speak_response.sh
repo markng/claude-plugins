@@ -66,29 +66,33 @@ clean_message=$(echo "$clean_message" | sed -E 's|[~/][a-zA-Z0-9_./-]{10,}|file 
 # Clean up multiple spaces
 clean_message=$(echo "$clean_message" | tr -s ' ')
 
-# Atomic sequence numbering using mkdir (only one process can create the dir)
-get_next_sequence() {
-    local seq_dir="$QUEUE_DIR/.seq"
-    local seq
-    while true; do
-        seq=$(($(ls -1 "$QUEUE_DIR" 2>/dev/null | grep -E '^[0-9]{4}_' | cut -d_ -f1 | sort -rn | head -1) + 1))
-        seq=$(printf "%04d" ${seq:-1})
-        if mkdir "$seq_dir.$seq" 2>/dev/null; then
-            echo "$seq"
-            rmdir "$seq_dir.$seq"
-            return 0
-        fi
-        # Another process got this sequence, retry
+# Global write lock - serializes queue writes to prevent race conditions
+# Using mkdir for atomic lock acquisition
+WRITE_LOCK="$QUEUE_DIR/.write_lock"
+
+acquire_write_lock() {
+    while ! mkdir "$WRITE_LOCK" 2>/dev/null; do
         sleep 0.01
     done
 }
 
-# Write message to queue
-SEQ=$(get_next_sequence)
+release_write_lock() {
+    rmdir "$WRITE_LOCK" 2>/dev/null || true
+}
+
+# Write message to queue with global lock
+acquire_write_lock
+
+# Find next sequence number (safe now - we hold exclusive lock)
+highest=$(ls -1 "$QUEUE_DIR" 2>/dev/null | grep -E '^[0-9]{4}_' | cut -d_ -f1 | sort -rn | head -1)
+SEQ=$((10#${highest:-0} + 1))
+SEQ=$(printf "%04d" $SEQ)
 TIMESTAMP=$(date +%s)
 MSG_FILE="$QUEUE_DIR/${SEQ}_${TIMESTAMP}.msg"
 
 echo "$clean_message" > "$MSG_FILE"
+
+release_write_lock
 
 # Spawn consumer if not running
 spawn_consumer_if_needed() {
